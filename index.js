@@ -31,24 +31,36 @@ async function run() {
         // Posting API
         app.post('/posts', async (req, res) => {
             const post = req.body; // Getting the post data from the request
+            post.number = parseInt(post.number);
             const result = await volunteerPostCollection.insertOne(post)// Sending the post data to the db and saving the confirmation message here
             res.send(result); // Sending the confirmation message to the client
         })
 
-        // Request API
+        // Requesting post
         app.post('/requests', async (req, res) => {
             const request = req.body; // Getting the post data from the request
             const result = await volunteerPostRequests.insertOne(request)// Sending the requested data to the db and saving the confirmation message here
             res.send(result); // Sending the confirmation message to the client
         })
 
-         app.get('/posts/:id', async (req, res) => {
+        // Decreasing number of volunteer with a request
+        app.patch('/posts/:id/decrease', async (req, res) => {
+            const id = req.params.id; // Getting the id from the request
+            const query = { _id: new ObjectId(id) }; // Converting into mongodbId
+            const updateDoc = { $inc: { number: -1 } } // Inc is a mongo operator that increments and decrements a number
+            const result = await volunteerPostCollection.updateOne(query, updateDoc); // commanding mongo to update doc with updateDoc matching with query and save the confirmation message here
+            res.send(result); // Sending the confirmation message to the client
+        })
+
+        // Getting one post by id
+        app.get('/posts/:id', async (req, res) => {
             const id = req.params.id //Getting the id form req
             const query = { _id: new ObjectId(id) }; // converting the id into mongodb id
             const result = await volunteerPostCollection.findOne(query)
             res.send(result)
         })
 
+        // Getting all the posts
         app.get('/posts', async (req, res) => {
             const result = await volunteerPostCollection.find().toArray();
             res.send(result)
