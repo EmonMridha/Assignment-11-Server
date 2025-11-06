@@ -25,7 +25,7 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-       
+
         const volunteerPostCollection = client.db('Volunteer').collection('posts')
         const volunteerPostRequests = client.db('Volunteer').collection('requests')
 
@@ -44,7 +44,7 @@ async function run() {
             res.send(result); // Sending the confirmation message to the client
         })
 
-        // Decreasing number of volunteer with a request
+        // This only decreases the number of volunteer and updated posts. It is never called. It is only for updating data.
         app.patch('/posts/:id/decrease', async (req, res) => {
             const id = req.params.id; // Getting the id from the request
             const query = { _id: new ObjectId(id) }; // Converting into mongodbId
@@ -61,12 +61,43 @@ async function run() {
             res.send(result)
         })
 
+        // Get data by title
+        app.get('/posts/search', async (req, res) => {
+            try {
+                const { title } = req.query; // Get query ?title=something
+                const query = title ? { title: { $regex: title, $options: 'i' } } : {};
+
+                const result = await volunteerPostCollection.find(query).toArray();
+                res.send(result)
+            }
+            catch (error) {
+                console.log(error);
+                res.status(500).send({ message: 'Server Error' });
+            }
+        })
+
+        // Get post data by an email
+        app.get('/posts/byEmail/:email', async (req, res) => {
+            const email = req.params.email; // Get email from the url
+            const query = { organizerEmail: email };
+            const result = await volunteerPostCollection.find(query).toArray(); // fnd data 
+            res.send(result)
+        })
+
+        // Get request data by an email
+        app.get('/posts/byEmail/request/:email', async(req,res)=>{
+            const email = req.params.email;
+            const query = {volunteerEmail: email};
+            const result = await volunteerPostRequests.find(query).toArray();
+            res.send(result)
+        })
+
+
         // Getting all the posts
         app.get('/posts', async (req, res) => {
             const result = await volunteerPostCollection.find().toArray();
             res.send(result)
         })
-
 
         // Send a ping to confirm a successful connection
         // await client.db("admin").command({ ping: 1 });
