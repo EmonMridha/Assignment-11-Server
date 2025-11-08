@@ -125,6 +125,14 @@ async function run() {
             res.send(result)
         })
 
+        //Delete data 
+        app.delete('/posts/:id', async (req, res) => {
+            const id = req.params.id; // Getting the id from the requested url
+            const query = { _id: new ObjectId(id) }; // Converting into mongodbId
+            const result = await volunteerPostCollection.deleteOne(query); // Commanding to delete the data matching with the query and saving the confirmation message here
+            res.send(result) // sending the confirmation message to the client
+        })
+
         // Send a ping to confirm a successful connection
         // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
