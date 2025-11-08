@@ -40,14 +40,14 @@ async function run() {
         // Requesting post
         app.post('/requests', async (req, res) => {
             const request = req.body; // Getting the post data from the request
-            const result = await volunteerPostRequests.insertOne(request)// Sending the requested data to the db and saving the confirmation message here
+            const result = await volunteerPostRequests.insertOne(request)// Sending the requested data to the db/ and saving the confirmation message here
             res.send(result); // Sending the confirmation message to the client
         })
 
         // This only decreases the number of volunteer and updated posts. It is never called. It is only for updating data.
         app.patch('/posts/:id/decrease', async (req, res) => {
             const id = req.params.id; // Getting the id from the request
-            const query = { _id: new ObjectId(id) }; // Converting into mongodbId
+            const query = { _id: new ObjectId(id), number: {$gt:0} }; // Converting into mongodbId
             const updateDoc = { $inc: { number: -1 } } // Inc is a mongo operator that increments and decrements a number
             const result = await volunteerPostCollection.updateOne(query, updateDoc); // commanding mongo to update doc with updateDoc matching with query and save the confirmation message here
             res.send(result); // Sending the confirmation message to the client
