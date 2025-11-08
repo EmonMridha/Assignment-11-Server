@@ -118,6 +118,12 @@ async function run() {
             res.send(result)
         })
 
+        // Get all the requests
+        app.get('/requests', async (req, res) => {
+            const result = await volunteerPostRequests.find().toArray();
+            res.send(result)
+        })
+
 
         // Getting all the posts
         app.get('/posts', async (req, res) => {
@@ -125,12 +131,20 @@ async function run() {
             res.send(result)
         })
 
-        //Delete data 
+        //Delete posts
         app.delete('/posts/:id', async (req, res) => {
             const id = req.params.id; // Getting the id from the requested url
             const query = { _id: new ObjectId(id) }; // Converting into mongodbId
             const result = await volunteerPostCollection.deleteOne(query); // Commanding to delete the data matching with the query and saving the confirmation message here
             res.send(result) // sending the confirmation message to the client
+        })
+
+        // Delete Reqs
+        app.delete('/requests/:id', async(req,res)=>{
+            const id = req.params.id; // Getting the id from the url
+            const query ={_id: new ObjectId(id)}; // Converting into mongodbId
+            const result = await volunteerPostRequests.deleteOne(query); // Commanding mongodb to delete the data matching with the query and saving the confirmation message here
+            res.send(result); // Sending the confirmation message to the client
         })
 
         // Send a ping to confirm a successful connection
