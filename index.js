@@ -22,6 +22,7 @@ const client = new MongoClient(uri, {
     }
 });
 
+
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
@@ -101,10 +102,10 @@ async function run() {
                 res.status(500).send({ message: 'Server Error' });
             }
         })
-
         // Get post data by an email
         app.get('/posts/byEmail/:email', async (req, res) => {
             const email = req.params.email; // Get email from the url
+            console.log('request header', req.headers);
             const query = { organizerEmail: email };
             const result = await volunteerPostCollection.find(query).toArray(); // fnd data 
             res.send(result)
