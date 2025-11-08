@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 3000;
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId, ServerDescription } = require('mongodb');
 
 
 //middleware
@@ -53,6 +53,32 @@ async function run() {
             res.send(result); // Sending the confirmation message to the client
         })
 
+        // Update post data
+        app.patch('/posts/:id', async (req, res) => {
+            try {
+                const id = req.params.id // Getting the Id from the URL
+                const updatedPost = req.body; // Getting the updated data from the frontend from request
+                const query = { _id: new ObjectId(id) }; // converting into mongodb id
+                const updatedDoc = {
+                    $set: {
+                        photo: updatedPost.photo,
+                        title: updatedPost.title,
+                        description: updatedPost.description,
+                        category: updatedPost.category,
+                        location: updatedPost.location,
+                        number: updatedPost.number,
+                        deadline: updatedPost.deadline,
+                    }
+                }
+
+                const result = await volunteerPostCollection.updateOne(query, updatedDoc);
+                res.send(result);
+            } catch (error) {
+                console.error(error);
+                res.status(500).send({ message: 'Error updating post' })
+            }
+        })
+
         // Getting one post by id
         app.get('/posts/:id', async (req, res) => {
             const id = req.params.id //Getting the id form req
@@ -85,9 +111,9 @@ async function run() {
         })
 
         // Get request data by an email
-        app.get('/posts/byEmail/request/:email', async(req,res)=>{
+        app.get('/posts/byEmail/request/:email', async (req, res) => {
             const email = req.params.email;
-            const query = {volunteerEmail: email};
+            const query = { volunteerEmail: email };
             const result = await volunteerPostRequests.find(query).toArray();
             res.send(result)
         })
@@ -101,7 +127,7 @@ async function run() {
 
         // Send a ping to confirm a successful connection
         // await client.db("admin").command({ ping: 1 });
-        // console.log("Pinged your deployment. You successfully connected to MongoDB!");
+        console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
         // await client.close();
